@@ -1,0 +1,58 @@
+---
+title: "Inference About Tooth Growth"
+author: "jcollingosch"
+date: "February 22, 2015"
+output: pdf_document
+---
+
+### Overview
+We will use experimental data from the `ToothGrowth` dataset in R to understand if different doses of Vitamin C had an effect on teeth length. See `?ToothGrowth` for more details about the dataset. The data consist of 60 teeth measurements from guinea pigs given 3 different doses of Vitamin C (0.5, 1,and 2 mg) from 2 different delivery methods (orange juice and ascorbic acid).
+
+```{r,warning=FALSE,message=FALSE}
+library("datasets")
+data(TootthGrowth)
+```
+
+### Explorator Data Analysis
+
+```{r, warning=FALSE, message=FALSE}
+library("ggplot2")
+library("dplyr")
+
+ggplot(ToothGrowth, aes(x=factor(dose),y=len,fill=factor(dose))) +
+  geom_boxplot() +
+  facet_wrap(~supp) +
+  labs(x="Dose of Vitamin C (mg)",y="Tooth Length",
+       title="Length of Teeth by Dose Given Delivery Method")
+
+ToothGrowth %>%
+  group_by(supp,dose) %>%
+  summarise(mean(len), sd(len))
+```
+
+Here we are able to see how tooth length changes across different doses of Vitamin C and delivery method. It appears that tooth length increases with dose level irreguardless of delivery method. Next we will formalize this hypothesis.
+
+Here we set up two groups to focus on for the purposes of testing the difference in mean tooth length. We will compare 2 mg dose of Vitamin C to 0.5 mg dose to Vitamin C just for the ascorbic acid delivery method.
+
+```{r}
+# set up the two groups
+g1 <- ToothGrowth %>% 
+        filter(supp=="VC", dose==2) %>%
+        select(len)
+
+g2 <- ToothGrowth %>% 
+        filter(supp=="VC", dose==0.5) %>%
+        select(len)
+```
+
+### Inference
+Next we will test the hypothesis whether the difference in the mean tooth length in these two groups is different from zero.
+
+```{r}
+t.test(x = g1, y=g2)
+```
+
+### Conclusion
+From the results of the hypothesis test above we conclude that the difference in tooth length from the 2 mg dose is between (14.4, 21.9) longer than the 0.5 mg dose. Here we are **assuming** that the dosage were randomaly assigned and there were no big differences between these two groups that would be confounded with the results described. 
+
+
